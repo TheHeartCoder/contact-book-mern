@@ -6,6 +6,7 @@ const contactSchema = mongoose.Schema({
   phoneNo1: String,
   phoneNo2: String,
   address: String,
+  selectedImage: String,
   createdAt: {
     type: Date,
     default: new Date(),
