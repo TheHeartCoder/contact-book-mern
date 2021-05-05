@@ -12,7 +12,7 @@ import {
 } from '@material-ui/core';
 
 import { makeStyles } from '@material-ui/core/styles';
-import { createContact } from '../actions/contactActions';
+import { createContact, updateContact } from '../actions/contactActions';
 
 const useStyles = makeStyles((theme) => ({
   file: {
@@ -20,7 +20,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const ContactForm = ({ open, handleClose }) => {
+const ContactForm = ({ currentId, setCurrentId, open, handleClose }) => {
   const dispatch = useDispatch();
   const classes = useStyles();
 
@@ -35,13 +35,23 @@ const ContactForm = ({ open, handleClose }) => {
 
   const [contactData, setContactData] = useState(initialState);
 
+  const contactDetails = useSelector((state) =>
+    currentId ? state.contacts.find((c) => c._id === currentId) : null
+  );
+
+  useEffect(() => {
+    if (contactDetails) setContactData(contactDetails);
+  }, [contactDetails]);
+
   const clearData = () => {
     setContactData(initialState);
+    setCurrentId(0);
   };
   const handleSubmit = (e) => {
     e.preventDefault();
     handleClose();
-    dispatch(createContact(contactData));
+    if (currentId === 0) dispatch(createContact(contactData));
+    else dispatch(updateContact(currentId, contactData));
     clearData();
   };
 
@@ -54,7 +64,9 @@ const ContactForm = ({ open, handleClose }) => {
       <DialogTitle id='form-dialog-title'>Contact Details</DialogTitle>
       <DialogContent>
         <DialogContentText>
-          To add your contact details from here
+          {`To ${
+            currentId === 0 ? 'add' : 'update'
+          } your contact details from here`}
         </DialogContentText>
 
         <TextField
@@ -132,7 +144,7 @@ const ContactForm = ({ open, handleClose }) => {
           Close
         </Button>
         <Button color='primary' onClick={handleSubmit}>
-          Add Contact
+          {`${currentId === 0 ? 'Add' : 'Update'} Contact`}
         </Button>
       </DialogActions>
     </Dialog>
